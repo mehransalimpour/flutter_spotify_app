@@ -20,7 +20,7 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => SongPlayerBloc(),
+      create: (context) => SongPlayerBloc()..add(LoadSongEvent(widget.songEntity)),
       child: Scaffold(
         appBar: BasicAppbar(
           title: const Text(
@@ -54,23 +54,21 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
                   ),
                   if (state is SongPlayerLoading) ...{
                     const SliverToBoxAdapter(
-                      child:  SliverToBoxAdapter(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(),
-                            ),
-                          ],
-                        ),
+                      child:  Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(),
+                          ),
+                        ],
                       ),
                     ),
                   } else ...{
                     if (state is SongPlayerLoaded) ...[
-                      SliverToBoxAdapter(child: _songPlayer(context))
+                      SliverToBoxAdapter(child: _songPlayer(context, state))
                     ],
                   }
                 ],
@@ -118,56 +116,58 @@ class _SongPlayerPageState extends State<SongPlayerPage> {
     );
   }
 
-  Widget _songPlayer(BuildContext context) {
-    return Column(
-      children: [
-        Slider(
-            value: context
-                .read<SongPlayerGetPositionDataEvent>()
-                .songPosition
-                .inSeconds
-                .toDouble(),
+  Widget _songPlayer(BuildContext context,SongPlayerLoaded state ) {
+    return StreamBuilder(
+      stream: state.songPosition,
+      builder: (context, snapshot) => Column(
+        children: [
+          Slider(
+            value: snapshot.data?.inMilliseconds.toDouble() ?? 0.0,
             min: 0.0,
-            max: context
-                .read<SongPlayerGetDurationDataEvent>()
-                .songDuration
-                .inSeconds
-                .toDouble(),
-            onChanged: (value) {}),
-        const SizedBox(
-          height: 20,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              formatDuration(
-                  context.read<SongPlayerGetPositionDataEvent>().songPosition),
-            ),
-            Text(
-              formatDuration(
-                  context.read<SongPlayerGetDurationDataEvent>().songDuration),
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: 20,
-        ),
-        GestureDetector(
-          onTap: () {
-            context.read<SongPlayerBloc>().add(PlayOrPauseSongEvent());
-          },
-          child: Container(
-            height: 60,
-            width: 60,
-            decoration: const BoxDecoration(
-                shape: BoxShape.circle, color: AppColors.primary),
-            child: Icon(context.read<SongPlayerBloc>().audioPlayer.playing
-                ? Icons.pause
-                : Icons.play_arrow),
+            max: state.songDuration?.inMilliseconds.toDouble() ?? 0.0,
+            onChangeStart: (value) {
+              context.read<SongPlayerBloc>().add(PauseSongEvent());
+            },
+            onChangeEnd: (value) {
+              context.read<SongPlayerBloc>().add(PlaySongEvent());
+            },
+            onChanged: (value) {
+              context.read<SongPlayerBloc>().add(OnSlideSongEvent(value));
+            },
           ),
-        )
-      ],
+          const SizedBox(
+            height: 20,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                formatDuration(snapshot.data ?? Duration.zero),
+              ),
+              Text(
+                formatDuration(state.songDuration ?? Duration.zero),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          GestureDetector(
+            onTap: () {
+              context.read<SongPlayerBloc>().add(PlayOrPauseSongEvent());
+            },
+            child: Container(
+              height: 60,
+              width: 60,
+              decoration: const BoxDecoration(
+                  shape: BoxShape.circle, color: AppColors.primary),
+              child: Icon(state.playing
+                  ? Icons.pause
+                  : Icons.play_arrow),
+            ),
+          )
+        ],
+      ),
     );
   }
 
