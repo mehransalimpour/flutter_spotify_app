@@ -13,9 +13,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       emit(HomeLoadingState());
 
       var homeList = await _homeRepository.getsong();
-      // var HomeList = await _HomeRepository.getHomes();
-      // var hotestHomeList = await _HomeRepository.getHotest();
-      // var bestSellerHomeList = await _HomeRepository.getBsetSeller();
 
       emit(HomeRequestSuccessState(homeList));
     });

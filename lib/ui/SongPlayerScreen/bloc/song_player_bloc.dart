@@ -38,7 +38,7 @@ class SongPlayerBloc extends Bloc<SongPlayerEvent, SongPlayerState> {
     on<LoadSongEvent>((event, emit) async {
       emit(SongPlayerLoading());
 
-      Future<void> LoadSong(String url) async {
+      Future<void> loadSong(String url) async {
         try {
           await audioPlayer.setUrl(url);
           emit(SongPlayerLoaded());

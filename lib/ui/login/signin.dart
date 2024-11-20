@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_spotify_app/ui/Home/bloc/home_bloc.dart';
+import 'package:flutter_spotify_app/ui/Home/home_screen.dart';
 import 'package:flutter_spotify_app/ui/login/bloc/authentication_event.dart';
 import 'package:flutter_spotify_app/ui/login/signup.dart';
 import 'package:flutter_spotify_app/utils/widgets/button/basic_app_button.dart';
@@ -67,7 +69,12 @@ class SigninPage extends StatelessWidget {
                     state.response.fold((l) {
                       widget = Text(l);
                     }, (r) {
-                      widget = Text(r);
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => BlocProvider(
+                          create: (context) => HomeBloc(),
+                          child: HomeScreen(),
+                        ),
+                      ));
                     });
                     return widget;
                   }

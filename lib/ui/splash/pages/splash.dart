@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_spotify_app/ui/GetStartPage/start_page.dart';
 import 'package:flutter_spotify_app/ui/Home/bloc/home_bloc.dart';
-import 'package:flutter_spotify_app/ui/Home/home_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../utils/assets/app_vectors.dart';
@@ -29,10 +29,7 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<void> redirect() async {
     await Future.delayed(const Duration(seconds: 2));
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (BuildContext context) => BlocProvider(
-              create: (context) => HomeBloc(),
-              child: const HomeScreen(),
-            )));
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (BuildContext context) => const GetstartPage()));
   }
 }
