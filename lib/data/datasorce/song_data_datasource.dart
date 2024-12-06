@@ -7,6 +7,7 @@ import '../../di/di.dart';
 
 abstract class ISongDatasource {
   Future<List<SongModel>> getsongs();
+  Future<bool> postLike(SongModel songModel);
   Future<void> getSongPlayers(SongModel url);
 }
 
@@ -32,5 +33,21 @@ class SongRemoteDatasource extends ISongDatasource {
   @override
   Future<void> getSongPlayers(SongModel url) async {
     await audioPlayer.setUrl(url.songfile.toString());
+  }
+
+  @override
+  Future<bool> postLike(SongModel songModel) async {
+    try {
+      var respones = await _dio.post(
+        'collections/songs/${songModel.id}',//todo change to the right api url
+        data: songModel.toJson(),
+      );
+
+      return respones.statusCode == 201;
+    } on DioException catch (ex) {
+      throw ApiExeption(ex.response?.statusCode, ex.response?.data['message']);
+    } catch (ex) {
+      throw ApiExeption(0, 'unknown erorr');
+    }
   }
 }

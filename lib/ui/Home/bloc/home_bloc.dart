@@ -16,5 +16,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
       emit(HomeRequestSuccessState(homeList));
     });
+
+    on<HomeLikeSong>((event, emit) async {
+      var response = await _homeRepository.postLike(event.songModel);
+
+      response.fold(
+        (l) {
+          add(HomeGetInitilzeData());
+        },
+        (r) {},
+      );
+
+    });
   }
 }

@@ -6,6 +6,7 @@ import 'package:flutter_spotify_app/utils/api_exeption/api_exeption.dart';
 
 abstract class ISongRepository {
   Future<Either<String, List<SongModel>>> getsong();
+  Future<Either<String, bool>> postLike(SongModel songModel);
 }
 
 class SongRepository extends ISongRepository {
@@ -14,6 +15,15 @@ class SongRepository extends ISongRepository {
   Future<Either<String, List<SongModel>>> getsong() async {
     try {
       var respons = await _datasource.getsongs();
+      return right(respons);
+    } on ApiExeption catch (ex) {
+      return left(ex.message ?? 'خطا محتوای متنی ندارد');
+    }
+  }
+  @override
+  Future<Either<String, bool>> postLike(SongModel songModel) async {
+    try {
+      var respons = await _datasource.postLike(songModel);
       return right(respons);
     } on ApiExeption catch (ex) {
       return left(ex.message ?? 'خطا محتوای متنی ندارد');
